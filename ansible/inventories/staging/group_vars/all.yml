@@ -1,0 +1,7 @@
+---
+ansible_python_interpreter: /usr/bin/python3
+prometheus_version: "2.41.0"
+grafana_version: "9.3.2"
+node_exporter_version: "1.5.0"
+grafana_admin_user: "admin"
+grafana_admin_password: "staging_password"

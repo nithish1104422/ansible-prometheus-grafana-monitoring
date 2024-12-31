@@ -1,0 +1,48 @@
+---
+- name: Download Prometheus
+  ansible.builtin.get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    dest: /tmp/prometheus.tar.gz
+    mode: "0644"
+
+- name: Extract Prometheus
+  ansible.builtin.unarchive:
+    src: /tmp/prometheus.tar.gz
+    dest: /usr/local/
+    remote_src: false
+    mode: "0755"
+
+- name: Copy Prometheus configuration
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: /usr/local/prometheus/prometheus.yml
+    mode: "0644"
+
+- name: Create systemd service for Prometheus
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/prometheus.service
+    content: |
+      [Unit]
+      Description=Prometheus Monitoring
+      After=network.target
+
+      [Service]
+      ExecStart=/usr/local/prometheus/prometheus \
+        --config.file=/usr/local/prometheus/prometheus.yml
+      Restart=always
+      User=nobody
+      Group=nobody
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: "0644"
+
+- name: Reload systemd to apply Prometheus service
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Start and enable Prometheus service
+  ansible.builtin.systemd:
+    name: prometheus
+    state: started
+    enabled: true

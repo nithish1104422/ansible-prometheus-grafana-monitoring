@@ -1,0 +1,10 @@
+---
+grafana_version: "9.3.2"
+grafana_download_url: "https://dl.grafana.com/oss/release/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+grafana_install_dir: "/usr/local/grafana"
+grafana_binary: "{{ grafana_install_dir }}/bin/grafana-server"
+grafana_service_name: "grafana-server"
+grafana_datasource_file: "/usr/local/grafana/conf/provisioning/datasources/datasources.yml"
+grafana_admin_user: "admin"
+grafana_admin_password: "admin"
+grafana_port: 3000

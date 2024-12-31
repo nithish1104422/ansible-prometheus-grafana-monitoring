@@ -1,0 +1,52 @@
+---
+- name: Download Grafana
+  ansible.builtin.get_url:
+    url: "{{ grafana_download_url }}"
+    dest: /tmp/grafana.tar.gz
+    mode: "0644"
+
+- name: Extract Grafana
+  ansible.builtin.unarchive:
+    src: /tmp/grafana.tar.gz
+    dest: "{{ grafana_install_dir }}"
+    remote_src: false
+    mode: "0755"
+
+- name: Create provisioning directory for datasources
+  ansible.builtin.file:
+    path: "{{ grafana_install_dir }}/conf/provisioning/datasources"
+    state: directory
+    mode: "0755"
+
+- name: Copy Grafana datasource configuration
+  ansible.builtin.template:
+    src: datasources.yml.j2
+    dest: "{{ grafana_datasource_file }}"
+    mode: "0644"
+
+- name: Create systemd service for Grafana
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/{{ grafana_service_name }}.service
+    content: |
+      [Unit]
+      Description=Grafana service
+      After=network.target
+
+      [Service]
+      User=nobody
+      ExecStart={{ grafana_binary }}
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: "0644"
+
+- name: Reload systemd to apply Grafana service
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Start and enable Grafana service
+  ansible.builtin.systemd:
+    name: "{{ grafana_service_name }}"
+    state: started
+    enabled: true

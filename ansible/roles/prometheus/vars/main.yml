@@ -1,0 +1,19 @@
+---
+prometheus_version: "2.41.0"
+prometheus_alertmanager_version: "0.25.0"
+
+# Paths for Prometheus configuration
+prometheus_install_dir: "/usr/local/prometheus"
+prometheus_rules_file_path: "{{ prometheus_install_dir }}/rules.yml"
+prometheus_alertmanager_config_path: "{{ prometheus_install_dir }}/alertmanager.yml"
+
+# Node Exporter and Grafana targets (dynamic from inventory groups)
+prometheus_node_exporter_targets: >
+  {{ groups['node_exporters'] | map('regex_replace', '$', ':9100') | join(',') }}
+prometheus_grafana_targets: >
+  {{ groups['grafana_servers'] | map('regex_replace', '$', ':3000') | join(',') }}
+
+# Default ports
+prometheus_port: 9090
+prometheus_alertmanager_port: 9093
+prometheus_grafana_port: 3000
